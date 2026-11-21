@@ -1,5 +1,11 @@
 # json-query
 
+![Python](https://img.shields.io/badge/python-3.8%2B-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Tests](https://img.shields.io/badge/tests-29%20passing-success)
+![Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
+
 零依赖的 JSON 点分路径查询 —— 一条命令从 JSON 里取值，支持数组下标、切片与 `[*]` 通配。
 
 - **路径语法**：`a.b.c` / `items[0]` / `tags[-1]`（倒数）/ `items[1:3]`（切片，两端可省略）
@@ -84,6 +90,19 @@ query(data, "不存在")      # []
 ```bash
 python -m unittest discover -s tests
 # Ran 29 tests ... OK
+```
+
+
+## 📁 项目结构
+
+```
+json-query/
+├── LICENSE
+├── json_query/
+├── pyproject.toml
+├── samples/
+├── tests/
+└── README.md
 ```
 
 ## License
