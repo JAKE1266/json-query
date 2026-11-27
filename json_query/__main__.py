@@ -16,6 +16,13 @@ from . import __version__
 from .core import QueryError, load_json, query
 
 
+def _configure_standard_streams() -> None:
+    for stream in (sys.stdin, sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8", errors="replace")
+
+
 def _render(value) -> str:
     if isinstance(value, str):
         return value
@@ -32,6 +39,7 @@ def _read_source(path: str) -> str:
 
 
 def main(argv=None) -> int:
+    _configure_standard_streams()
     ap = argparse.ArgumentParser(prog="json-query", description="JSON 点分路径查询（支持 [*] 通配 / 下标 / 切片）")
     ap.add_argument("--version", action="version", version=f"json-query {__version__}")
     ap.add_argument("file", help="JSON 文件；'-' 表示 stdin")

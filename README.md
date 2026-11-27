@@ -2,7 +2,7 @@
 
 ![Python](https://img.shields.io/badge/python-3.8%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Tests](https://img.shields.io/badge/tests-29%20passing-success)
+![Tests](https://img.shields.io/badge/tests-35%20passing-success)
 ![Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
 
@@ -13,6 +13,7 @@
 - **多结果友好**：每次命中都输出**完整可复现路径**，一眼看清值从哪来
 - **类型标注**：`--type` 附带 `[str]` / `[int]` / `[array]` / `[table]`
 - **CJK 键**：`配置.超时` 直接可用
+- **键名空白**：空格按键名内容保留；查询尾空格键时用引号包住整个路径
 - **退出码语义**：无命中 exit 1，方便接入脚本与管道
 
 零第三方依赖，Python ≥ 3.8。
@@ -22,6 +23,8 @@
 ```bash
 pip install .
 ```
+
+发行名为 `json-query-kit`（避免 PyPI 同名冲突），Python 导入名 `json_query` 与命令 `json-query` 不变。
 
 ## 真实运行示例
 
@@ -76,20 +79,20 @@ query(data, "不存在")      # []
 | `配置.*` | 展开对象全部键 |
 | `users[*].roles[*]` | 通配可多层串联 |
 
-键名允许中文、字母、数字、连字符与空格（`.`、`[`、`]`、`*` 为语法字符不可用于键名）。
+键名允许中文、字母、数字、连字符与空格（`.`、`[`、`]`、`*` 为语法字符不可用于键名）。路径不会自动去除首尾空白；尾空格属于键名，例如 `"name "` 查询键 `name `。
 
 ## 设计取舍
 
 - **结果必带路径**：通配查询的值脱离路径就没有意义，`Hit(path, value)` 让每次输出都能复制回脚本
 - **单值 / 多值两套 API**：`get` 严格唯一（多命中即报错），`query` 返回全部命中——语义清晰不猜测
 - **无结果不算错误**：`query` 返回空列表；CLI 层才把无命中转为 exit 1
-- **零依赖**：`pip install json-query` 不拉任何包
+- **零依赖**：安装本项目不会拉取任何第三方包
 
 ## 运行测试
 
 ```bash
 python -m unittest discover -s tests
-# Ran 29 tests ... OK
+# Ran 35 tests ... OK
 ```
 
 
@@ -97,7 +100,10 @@ python -m unittest discover -s tests
 
 ```
 json-query/
+├── .github/workflows/
+├── CHANGELOG.md
 ├── LICENSE
+├── MANIFEST.in
 ├── json_query/
 ├── pyproject.toml
 ├── samples/

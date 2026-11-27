@@ -32,6 +32,17 @@ class TestTokenize(unittest.TestCase):
     def test_cjk_keys(self):
         self.assertEqual(tokenize("配置.超时"), [("key", "配置"), ("key", "超时")])
 
+    def test_spaces_are_part_of_keys(self):
+        self.assertEqual(tokenize("name "), [("key", "name ")])
+        self.assertEqual(tokenize("a b"), [("key", "a b")])
+        self.assertEqual(tokenize("items[*].name "),
+                         [("key", "items"), ("wild", None), ("key", "name ")])
+
+    def test_outer_whitespace_is_not_silently_trimmed(self):
+        for bad in [" name", "name\t", ". name"]:
+            with self.assertRaises(QueryError, msg=bad):
+                tokenize(bad)
+
     def test_invalid(self):
         for bad in ["", "  ", "a..b", "a[", "a[x]", "a[1:2:3]", "@#$"]:
             with self.assertRaises(QueryError, msg=bad):
@@ -68,6 +79,17 @@ class TestQuery(unittest.TestCase):
     def test_no_result(self):
         self.assertEqual(query(DATA, "不存在"), [])
         self.assertEqual(query(DATA, "users[9]"), [])
+
+    def test_trailing_space_key(self):
+        data = {"name ": 1, "name": 2}
+        hits = query(data, "name ")
+        self.assertEqual([(hit.path, hit.value) for hit in hits], [("name ", 1)])
+        self.assertEqual(get(data, "name "), 1)
+
+    def test_trailing_space_key_after_wildcard(self):
+        data = {"items": [{"name ": 3}, {"name": 4}]}
+        hits = query(data, "items[*].name ")
+        self.assertEqual([(hit.path, hit.value) for hit in hits], [("items[0].name ", 3)])
 
     def test_multi_wild_chains(self):
         hits = query(DATA, "users[*].roles[*]")

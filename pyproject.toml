@@ -3,8 +3,8 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "json-query"
-version = "0.1.0"
+name = "json-query-kit"
+version = "0.1.1"
 description = "零依赖 JSON 点分路径查询：下标/切片/[*] 通配、多命中带完整路径、CJK 键支持"
 readme = "README.md"
 requires-python = ">=3.8"

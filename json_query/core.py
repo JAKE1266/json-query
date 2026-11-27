@@ -39,10 +39,11 @@ def tokenize(path: str) -> list[tuple[str, Any]]:
     """路径 → token 列表：("key", 名) / ("index", i) / ("slice", (a, b)) / ("wild",)。
 
     首个键允许省略前导点；键名允许 CJK、数字、连字符与空格。
+    路径首尾空白不会自动去除，空格按键名内容处理。
     """
     if not path or not path.strip():
         raise QueryError("路径为空")
-    text = path.strip()
+    text = path
     if text.startswith("."):
         text = text[1:]
     if not text.startswith("[") and not text.startswith(".*"):

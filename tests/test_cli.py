@@ -1,10 +1,10 @@
+import os
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
 PY = sys.executable
 
 DATA = {
@@ -26,7 +26,7 @@ def make(tmp: Path, name: str, content) -> str:
 
 def run_cli(*args, stdin_text=None, expect=0):
     r = subprocess.run([PY, "-m", "json_query", *args], input=stdin_text,
-                       capture_output=True, text=True, encoding="utf-8", cwd=ROOT)
+                       capture_output=True, text=True, encoding="utf-8")
     if r.returncode != expect:
         raise AssertionError(f"exit={r.returncode} (expect {expect})\n"
                              f"stdout={r.stdout}\nstderr={r.stderr}")
@@ -86,6 +86,22 @@ class TestCli(unittest.TestCase):
     def test_bad_path_syntax(self):
         r = run_cli(self.data, "a..b", expect=1)
         self.assertIn("无法解析路径片段", r.stderr)
+
+    def test_utf8_bytes_pipe_and_trailing_space_key_under_legacy_encoding(self):
+        env = os.environ.copy()
+        env["PYTHONIOENCODING"] = "cp1252"
+        env["PYTHONUTF8"] = "0"
+        r = subprocess.run(
+            [PY, "-m", "json_query", "-", "name "],
+            input='{"name ": "尾空格"}'.encode("utf-8"),
+            capture_output=True, env=env,
+        )
+        self.assertEqual(r.returncode, 0, r.stderr.decode("utf-8", errors="replace"))
+        self.assertEqual(r.stdout.decode("utf-8").splitlines(), ["name  = 尾空格"])
+
+    def test_version(self):
+        r = run_cli("--version")
+        self.assertEqual(r.stdout.strip(), "json-query 0.1.1")
 
     def test_missing_file(self):
         r = run_cli("nope.json", "shop", expect=1)
